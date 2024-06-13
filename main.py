@@ -35,7 +35,7 @@ while True:
 		data = json.load(f)
 	data["deviceName"]=args.name
 	data["mqttBroker"]=args.broker
-	data["dataset"]=True
+	data["dataset"]=False
 	mqttBroker = args.broker
 	mqttPort = data["mqttPort"]
 	mqttUsername = data["mqttUsername"]
