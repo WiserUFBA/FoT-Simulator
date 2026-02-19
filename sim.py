@@ -8,13 +8,16 @@ from mininet.node import Node, RemoteController, Controller, OVSKernelSwitch
 from mininet.topolib import TreeNet
 import time
 import argparse
-import utils_hosts
+from fot_network import utils_hosts
 import json
 import random
-#seed usados 10, 11 e 12
-#random.seed(12)
-service_mix_path= '/home/openflow/service-mix'
-fuseki_path='/home/openflow/fuseki/apache-jena-fuseki-3.11.0'
+import sys
+from pathlib import Path
+sys.path.append(str(Path.cwd())+"/tatu")
+from TATU import TatuReq, TatuRes
+
+from fot_network import create_topo
+
 
 #################################
 def startNAT( root, inetIntf='eth0', subnet='10.0/8' ):
@@ -138,34 +141,34 @@ def init_sensors(net):
 	ass=utils_hosts.return_association()
 	for i in range(0,len(s)):
 		if((i+1)<10):
-			net.get(s[i].name).cmdPrint('python main.py --name sc0'+str(i+1)+' --broker '+str(ass[i].gateway)+' &')
+			net.get(s[i].name).cmdPrint('python fot_devices/main_n.py --name sc0'+str(i+1)+' --broker '+str(ass[i].gateway)+' &')
 		else:
-			net.get(s[i].name).cmdPrint('python main.py --name sc'+str(i+1)+' --broker '+str(ass[i].gateway)+' &')
+			net.get(s[i].name).cmdPrint('python fot_devices/main_n.py --name sc'+str(i+1)+' --broker '+str(ass[i].gateway)+' &')
 		time.sleep(0.2)
 
 def init_flow(net):
-	print ("Temp: Init Flow")
-	g=utils_hosts.return_hosts_per_type('gateway')
-	ass=utils_hosts.return_association()
-	#10seg
-	col=10000
-	pub=10000
-	ind=0
-	for i in range(0,len(g)):
-		for j in range(0,len(ass)):
-			if(g[i].name==ass[j].name_gateway):
-				print(g[i].name+' com '+ass[j].name)
-				print("mosquitto_pub -h "+str(ass[j].gateway)+" -t 'dev/"+ass[j].name+"' -m '{\"method\":\"flow\", \"sensor\":\""+ass[j].type+"\", \"time\":{\"collect\":"+str(col)+",\"publish\":"+str(pub)+"}}'")
-				net.get(g[i].name).cmd("mosquitto_pub -h "+str(ass[j].gateway)+" -t 'dev/"+ass[j].name+"' -m '{\"method\":\"flow\", \"sensor\":\""+ass[j].type+"\", \"time\":{\"collect\":"+str(col)+",\"publish\":"+str(pub)+"}}'")
-				time.sleep(0.5)
-				ind+=1
+    print ("Temp: Init Flow")
+    g=utils_hosts.return_hosts_per_type('gateway')
+    ass=utils_hosts.return_association()
+    #10seg
+    col=10000
+    pub=10000
+    ind=0
+    for i in range(0,len(g)):
+        for j in range(0,len(ass)):
+            if(g[i].name==ass[j].name_gateway):
+                tatuMessage = TatuReq("FLOW",collect=col,publish=pub,sensor=ass[j].type,device=ass[j].name)
+                print("mosquitto_pub -h "+str(ass[j].gateway)+" -m "+tatuMessage.getTatu())
+                #print(tatuMessage.getTatu())
+                net.get(g[i].name).cmd("mosquitto_pub -h "+str(ass[j].gateway)+" -t 'dev/"+ass[j].name+"/REQ' -m '"+tatuMessage.getTatu()+"'")
+                time.sleep(0.5)
+                ind+=1
 
 
 if __name__ == '__main__':
 	lg.setLogLevel( 'info')
 	net = Mininet(link=TCLink)
 	#criar switches, hosts e topologia
-	import create_topo
 	create_topo.create(net)
 	
 	# Configurar e iniciar comunicacao externa
@@ -183,9 +186,11 @@ if __name__ == '__main__':
 	
 	
 	#init_servers(net)
+	net.start()
 	CLI( net )
 	# Shut down NAT
 	stopNAT( rootnode )
 	#stop_gateways(net)
 	#time.sleep(15)
+    
 	net.stop()

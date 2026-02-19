@@ -1,0 +1,39 @@
+
+Request GET for a specific sensor: 
+'{"method":"GET", "sensor":"sensorName"}'
+
+Request GET for all sensors at a device: 
+'{"method":"GET", "device":"deviceName"}'
+
+Response GET sensorName:
+'{"header":{"method":"GET", "device":"deviceName"}, "payload":{"sensors":{"sensorName":listValues}}}'
+
+Response GET deviceName:
+'{"header":{"method":"GET", "device":"deviceName"}, "payload":{"sensors":{"sensorName1":listValues,"sensorName2":listValues,"sensorName3":listValues}}}'
+
+
+Request STOP for a specific sensor (only used with FLOW and EVT):
+'{"method":"STOP", "sensor":"sensorName"}'
+
+Request FLOW for a specific sensor:
+'{"method":"FLOW", "sensor":"sensorName", "time":{"collect":collectTime,"publish":publishTime}}'
+
+Request FLOW for all sensors at a device:
+'{"method":"FLOW", "device":"deviceName", "time":{"collect":collectTime,"publish":publishTime}}'
+
+
+Request EVENT for a specific sensor (The sensors only send messages when there is a delta variation in relation to the last sample sent):
+'{"method":"EVT", "name":"sensorName", "delta":"deltaValue"}'
+
+Request EVENT for all sensors at a device: 
+- There's no EVENT for all sensors
+
+Response EVENT sensor:
+'{"header":{"method":"EVT", "device":"deviceName"}, "payload":{"sensors":{"sensorName":listValues}}}'
+
+
+Request POST sensor:
+'{"method":"POST", "sensor":"sensorName", "value":value}'
+
+Response POST sensor (change in progress):
+'{"header":{"method":"POST", "device":"deviceName"}, "payload":{"sensors":{"sensorName":listValues}}}'

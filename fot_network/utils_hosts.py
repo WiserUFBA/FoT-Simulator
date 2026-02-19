@@ -2,16 +2,20 @@ import json
 import fileinput
 from operator import itemgetter
 
+data_hosts="fot_network/data_hosts.json"
+association_hosts="fot_network/association_hosts.json"
+config_tatu="config.json"
+
 class to_object(object):
 	def __init__(self, j):
 		self.__dict__ = json.loads(j)
 			
 
 def return_hosts():
-	f=open('/home/mininet/sim/data_hosts.json','r')
+	f=open(data_hosts,'r')
 	lines=len(f.readlines())
 	f.close()
-	f=open('/home/mininet/sim/data_hosts.json','r')
+	f=open(data_hosts,'r')
 	st2=[]
 	st2=f.readlines()
 	f.close()
@@ -21,10 +25,10 @@ def return_hosts():
 	return hosts
 
 def return_association():
-	f=open('/home/mininet/sim/association_hosts.json','r')
+	f=open(association_hosts,'r')
 	lines=len(f.readlines())
 	f.close()
-	f=open('/home/mininet/sim/association_hosts.json','r')
+	f=open(association_hosts,'r')
 	st2=[]
 	st2=f.readlines()
 	f.close()
@@ -44,7 +48,7 @@ def return_hosts_per_type(type_host):
 
 	
 def write_host(st):
-	x=open('/home/mininet/sim/data_hosts.json','a')
+	x=open(data_hosts,'a')
 	x.write(st+"\n")
 	x.close()
 
@@ -65,18 +69,18 @@ def return_host_per_name(name_host):
 
 
 def update_flow(value):
-	a_file = open("config.json", "r")
+	a_file = open(config_tatu, "r")
 	json_object = json.load(a_file)
 	a_file.close()
 	if(json_object["publish"]!=value):
 		json_object["publish"] = int(value)
 		json_object["collect"] = int(value)
-		a_file = open("config.json", "w")
+		a_file = open(config_tatu, "w")
 		json.dump(json_object, a_file)
 		a_file.close()
 
 def get_pub():
-	with open('config.json') as f:
+	with open(config_tatu) as f:
 		data = json.load(f)
 	pub=data["publish"]
 	return pub
