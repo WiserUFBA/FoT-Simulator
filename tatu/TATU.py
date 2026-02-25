@@ -41,8 +41,8 @@ class TatuReq:
         self.method = method.lower()
         self.device = device
         self.sensor = sensor if sensor else None
-        self.collect = collect
-        self.publish = publish
+        self.collect = str(collect)
+        self.publish = str(publish)
         self.delta = delta
         self.sample = _normalize_bool(sample)
 
@@ -95,8 +95,8 @@ class TatuRes:
         self.method = method.lower()
         self.device = device
         self.sensor = sensor if sensor else None
-        self.collect = collect
-        self.publish = publish
+        self.collect = str(collect)
+        self.publish = str(publish)
         self.sample = _normalize_bool(sample)
         self.sensorsList = sensorsList
         self.sensorsValue = sensorsValue
@@ -106,7 +106,7 @@ class TatuRes:
         if self.sensorsList and self.sensorsValue:
             sensors = []
             for name, value in zip(self.sensorsList, self.sensorsValue):
-                key = name.lower()
+                key = name
                 # Normalize boolean strings
                 val = [_normalize_bool(v) for v in value]
                 sensors.append({key: val})
@@ -137,4 +137,3 @@ class TatuRes:
 
     def getTopic(self):
         return f"dev/{self.device}/RES"
-

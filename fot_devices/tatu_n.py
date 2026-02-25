@@ -58,10 +58,9 @@ class virtualSensor():
                     retrieved = locals()[i["name"]]
                     retrieved.append(str(methodFLOW()))
 					
-                t = t + self.collectTime
+                t = t + int(self.collectTime)
                 arrayValues = []
-
-                if (t >= self.publishTime):
+                if (t >= int(self.publishTime)):
                     if(self.sensorName!=None):
                         header = {"method":"FLOW", "device":self.deviceName, "sensor":self.sensorName, "time":{"collect":self.collectTime,"publish":self.publishTime}}
                     else:
@@ -70,15 +69,13 @@ class virtualSensor():
                         for i in range(len(locals()[y["name"]])):
                             arrayValues.append(locals()[y["name"]][i])
                         locals()[y["name"]] = []
-            
                     payload = {"sensors":arrayValues}
                     responseModel = {"header":header, "payload":payload}
                     tatuMessage = TatuRes("FLOW",collect=self.collectTime,publish=self.publishTime,sensor=self.sensorName,device=self.deviceName,sample=arrayValues)
                     self.pub_client.publish(self.topic, tatuMessage.getTatu())
                     t = 0
                     arrayValues = []
-                
-                sleep(self.collectTime/1000)
+                sleep(int(self.collectTime)/1000)
         except Exception as e:
             errorMessage = "There is no Sensor"
             #errorMessage = "There is no " + sensorName + " sensor in device " + deviceName
